@@ -31,6 +31,8 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
+
+	hiveinternal "github.com/openshift/hive/apis/hiveinternal/v1alpha1"
 )
 
 // Change below variables to serve metrics on different host or port.
@@ -119,6 +121,12 @@ func main() {
 	// Setup Scheme for all resources
 	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
 		log.Error(err, "")
+		os.Exit(1)
+	}
+
+	// Add hiveinternal schemes to manager
+	if err := hiveinternal.AddToScheme(mgr.GetScheme()); err != nil {
+		log.Error(err, "Failed to add hiveinternal to Scheme")
 		os.Exit(1)
 	}
 
