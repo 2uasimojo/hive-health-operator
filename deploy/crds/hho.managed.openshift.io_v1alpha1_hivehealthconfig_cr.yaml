@@ -1,0 +1,7 @@
+apiVersion: hho.managed.openshift.io/v1alpha1
+kind: HiveHealthConfig
+metadata:
+  name: example-hivehealthconfig
+spec:
+  # Add fields here
+  size: 3
