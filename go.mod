@@ -1,6 +1,6 @@
 module github.com/openshift/hive-health-operator
 
-go 1.13
+go 1.16
 
 require (
 	github.com/operator-framework/operator-sdk v0.18.2
