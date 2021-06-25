@@ -75,9 +75,19 @@ func (r *ReconcileClusterSync) Reconcile(context context.Context, request reconc
 			return reconcile.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
-		reqLogger.Error(err, fmt.Sprintf("Failed to retrieve ClusterSync %s/%s", request.Namespace, request.Name))
+		reqLogger.Error(err, fmt.Sprintf("failed to retrieve ClusterSync %s/%s", request.Namespace, request.Name))
 		return reconcile.Result{}, err
 	}
 
-	return reconcile.Result{}, countErrors(instance, reqLogger)
+	if err := countErrors(instance, reqLogger); err != nil {
+		reqLogger.Error(err, "error counting errors")
+		return reconcile.Result{}, err
+	}
+
+	if err := processAlerts(reqLogger); err != nil {
+		reqLogger.Error(err, "error sending alerts")
+		return reconcile.Result{}, err
+	}
+
+	return reconcile.Result{}, nil
 }
