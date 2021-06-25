@@ -7,4 +7,3 @@ const (
 	// OperatorNamespace stores a string indicating the Kubernetes namespace in which the operator runs
 	OperatorNamespace string = "hive-health-operator"
 )
-
