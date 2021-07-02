@@ -84,10 +84,5 @@ func (r *ReconcileClusterSync) Reconcile(context context.Context, request reconc
 		return reconcile.Result{}, err
 	}
 
-	if err := processAlerts(reqLogger); err != nil {
-		reqLogger.Error(err, "error sending alerts")
-		return reconcile.Result{}, err
-	}
-
 	return reconcile.Result{}, nil
 }

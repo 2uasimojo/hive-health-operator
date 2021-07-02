@@ -15,6 +15,7 @@ import (
 
 	"github.com/openshift/hive-health-operator/pkg/apis"
 	"github.com/openshift/hive-health-operator/pkg/controller"
+	"github.com/openshift/hive-health-operator/pkg/controller/clustersync"
 	"github.com/openshift/hive-health-operator/version"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
@@ -140,6 +141,10 @@ func main() {
 	addMetrics(ctx, cfg)
 
 	log.Info("Starting the Cmd.")
+
+	// Start the alerter
+	// TODO: Stop this gracefully on termination?
+	go clustersync.AlertLoop()
 
 	// Start the Cmd
 	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
