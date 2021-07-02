@@ -3,6 +3,7 @@ package clustersync
 import (
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/go-logr/logr"
 
@@ -28,10 +29,27 @@ func key(ns, ssOrsss string, status *hiveinternal.SyncStatus) string {
 	return fmt.Sprintf("%s/%s/%s", ns, ssOrsss, status.Name)
 }
 
+// shouldRecord looks at a SyncStatus and answers whether we should mark it down as a failure we want to alert on.
+func shouldRecord(status *hiveinternal.SyncStatus) bool {
+	// We only care about failures
+	if status.Result != hiveinternal.FailureSyncSetResult {
+		return false
+	}
+	// ...that are at least a certain age.
+	// TODO: Make this age configurable via HiveHealthConfig
+	var oldEnough time.Duration = time.Hour * 4
+	var statusAge time.Duration = time.Now().Sub(status.LastTransitionTime.Time)
+	if statusAge < oldEnough {
+		return false
+	}
+	// TODO: Make specific ns/ssOrsss/ssname combinations silenceable via HiveHealthConfig
+	return true
+}
+
 // recordFailures modifies `failures`, removing any successes and ensuring any failures are present.
 // Must be under lock.
 func recordFailures(ns, ssOrsss string, status *hiveinternal.SyncStatus) error {
-	if status.Result == hiveinternal.FailureSyncSetResult {
+	if shouldRecord(status) {
 		k := key(ns, ssOrsss, status)
 		failures.statuses[k] = status
 		failures.byNamespace[ns] = append(failures.byNamespace[ns], k)
